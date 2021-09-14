@@ -7,7 +7,13 @@
         Di sini kita akan menggunakan named Routing beserta
         passing parameter todoId yang dibutuhkan
       -->
-      <router-link :to="{ name: 'TodoEdit', params: { todoId: 1 } }"
+      <router-link
+        :to="{
+          name: 'TodoEdit',
+          params: {
+            todoId: 1,
+          },
+        }"
         >Edit</router-link
       >
     </nav>

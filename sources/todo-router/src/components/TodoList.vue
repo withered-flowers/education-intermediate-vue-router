@@ -15,7 +15,10 @@
           <td>{{ todo.id }}</td>
           <td>{{ todo.name }}</td>
           <td>{{ todo.isCompleted }}</td>
-          <td></td>
+          <!-- Tambahkan action edit di sini -->
+          <td>
+            <button @click="editHandler(todo)">Edit</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -54,6 +57,28 @@ export default {
         // tampilkan error di console log
         console.log(err);
       }
+    },
+    editHandler(todo) {
+      // mencetak isi dari todo ke dalam console.log
+      console.log(todo);
+
+      // pindah ke route /todo/edit/:todoId
+      // di sini kita menggunakan cara object untuk berpindah ke route
+      // lainnya
+      this.$router.push({
+        name: "TodoEdit",
+        // di sini kita akan mempassing parameter todoId
+        params: {
+          todoId: todo.id,
+        },
+        // di sini kita akan iseng untuk mencoba menggunakan
+        // query sehingga kita akan menambahkan query string ke url
+        // ?name=<nama_dari_todo>
+        query: {
+          // query untuk mengirimkan data ke route TodoEdit
+          name: todo.name,
+        },
+      });
     },
   },
   async created() {

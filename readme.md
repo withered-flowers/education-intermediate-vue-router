@@ -5,7 +5,7 @@
     - Named Routes
     - Nested Routes
     - Dynamic Routes
-    - Programmatic Routes
+    - Programmatic Navigation
 1. History Mode
 1. Navigation Guard
 1. References
@@ -585,7 +585,7 @@ Sekarang kita akan menggunakan router yang didefinisikan dengan `router-link`
 terlebih dahulu yah (sehingga parameter yang digunakan "statik")
 
 Nanti akan kita lihat lebih lanjut bagaimana untuk menggunakan / passing  
-parameter ini sangat dinamis dengan cara programmatic routing 😉.
+parameter ini sangat dinamis dengan cara programmatic navigation 😉.
 
 File: `/src/views/Todo.vue`
 ```html
@@ -598,9 +598,15 @@ File: `/src/views/Todo.vue`
       Di sini kita akan menggunakan named Routing beserta
       passing parameter todoId yang dibutuhkan
     -->
-    <router-link :to="{ name: 'TodoEdit', params: { todoId: 1 } }"
-      >Edit</router-link
-    >
+    <router-link
+        :to="{
+          name: 'TodoEdit',
+          params: {
+            todoId: 1,
+          },
+        }"
+        >Edit</router-link
+      >
   </nav>
   ...
 ```
@@ -610,10 +616,209 @@ lihatlah outputnya seperti apa !
 
 Cukup menakjubkan bukan? 😉
 
-### Programmatic Routes
+Namun cara yang kita gunakan sekarang ini masih kurang efisien bukan?
+
+Sebagai contoh, apabila kita ingin pada Component `TodoList` kita ingin  
+menambahkan sebuah tombol untuk meng-edit data berdasarkan id todo yang ada  
+pada baris tersebut, kemudian sambil kita akan melakukan sesuatu seperti  
+mencetak id tersebut ke console log.
+
+Bagaimanakah cara kita melakukannya kalau kita hanya menggunakan `router-link`  
+saja?
+
+Tentunya tidak bisa bukan?
+
+Diperlukan suatu cara lain yang dinamakan dengan `Programmatic Navigation`.
+
+### Programmatic Navigation
+Misalkan sekarang ini kita memerlukan sebuah tombol `Edit` pada Component  
+`TodoList.vue`.
+
+Tombol ini nantinya akan menampilkan data satu baris dari Object todo yang ada  
+dalam console log, serta akan berpindah ke route `/todo/edit/:todoId`.
+
+Untuk bisa melakukan hal ini, maka kita akan membutuhkan pembuatan navigasi   
+secara programatik.
+
+Dan dalam Vue Router, hal ini juga sudah disediakan sehingga kita bisa  
+melakukannya dengan cara `this.$route.push`
+
+Mari kita coba melakukannya !
+
+Bukalah kembali Component `TodoList.vue` dan kita akan menambahkan sebuah   
+button `Edit` di dalam `TodoList.vue` dan menggunakan programmatic navigation  
+untuk bisa berpindah ke route `/todo/edit/:todoId`.
+
+File: `/src/components/TodoList.vue`
+```html
+<template>
+  ...
+      <tbody>
+        <tr v-for="todo in todos" :key="todo.id">
+          <td>{{ todo.id }}</td>
+          <td>{{ todo.name }}</td>
+          <td>{{ todo.isCompleted }}</td>
+          <!-- Tambahkan action edit di sini -->
+          <td>
+            <!-- 
+              Di sini kita akan menambahkan sebuah method
+              yang akan menghandle ketika button edit diclick
+              dan akan mengirimkan parameter object Todo yang
+              ada pada baris tersebut
+             -->
+            <button @click="editHandler(todo)">Edit</button>
+          </td>
+        </tr>
+      </tbody>
+  ...
+</template>
+
+...
+<script>
+  ...
+  methods: {
+    ...,
+    editHandler(todo) {
+      // mencetak isi dari todo ke dalam console.log
+      console.log(todo);
+
+      // pindah ke route /todo/edit/:todoId
+      // di sini kita menggunakan cara object untuk berpindah ke route
+      // lainnya
+      this.$router.push({
+        name: "TodoEdit",
+        // di sini kita akan mempassing parameter todoId
+        params: {
+          todoId: todo.id,
+        },
+        // di sini kita akan iseng untuk mencoba menggunakan
+        // query sehingga kita akan menambahkan query string ke url
+        // ?name=<nama_dari_todo>
+        query: {
+          // query untuk mengirimkan data ke route TodoEdit
+          name: todo.name,
+        },
+      });
+    },
+  }
+</script>
+```
+
+Sehingga dari sini kita sudah bisa menggunakan programmatic navigation dengan  
+baik.
+
+Selain penggunaan `$router.push` ada juga beberapa method lainnya yang bisa  
+digunakan yaitu:
+- `$router.replace`
+- `$router.go`
+- `$router.back`
+
+(Untuk pembelajaran kali ini tidak dibahas detil yah, coba dicari lebih lanjut  
+pada dokumentasi official vue router yang tersedia)
 
 ## History Mode
+Mode default dari vue-router sebenarnya adalah dalam bentuk `hash mode`,  
+dimana menggunakan hash dari url untuk mensimulasikan URL yang ada, sehingga  
+page tidak akan pernah di-reload ketika urlnya berubah.
+
+Hanya saja pada pembelajaran ini, kita telah menggunakan mode kedua yang  
+bernama `History Mode`.
+
+Hal ini dapat dilihat pada file `/src/router/index.js`
+
+File: `/src/router/index.js`
+```javascript
+const router = new VueRouter({
+  mode: "history",
+  base: process.env.BASE_URL,
+  routes,
+});
+```
+
+Di sini kita mendefinisikan mode `history` sehingga kita bisa menggunakan  
+history mode.
+
+Namun History Mode ini memiliki kelemahan: 
+** Harus menambahkan konfigurasi tambahan pada server dimana Vue.js nya  
+dihosting **
+
+Sebagai contoh pada hosting firebase, kita akan diminta untuk menambahkan  
+konfigurasi `rewrites` pada `firebase.json`.
+
+```json
+  "rewrites": [
+    {
+      "source": "**",
+      "destination": "/index.html"
+    }
+  ]
+```
+
+Untuk server lainnya, harus menggunakan konfigurasi lainnya yah !
+
+Masuk ke bagian terakhir dari pembelajaran Vue Router kita, yaitu  
+`Navigation Guard`.
 
 ## Navigation Guard
+Disclaimer:  
+Navigation Guard ini tidak didemokan dalam pembelajaran ini !
+
+Navigation Guard, sesuai dengan namanya, adalah suatu teknik yang disediakan  
+oleh Vue Router untuk melindungi navigasi atau endpoint yang ada, dengan cara  
+melakukan redirect ataupun melakukan cancel navigasi berdasarkan logic tertentu.
+
+Dalam Navigation Guard ini sendiri ada suatu aturan yang dipegang teguh:
+- Perubahan konten dari route `params` ataupun `query` **TIDAK** akan  
+  mentrigger navigation guard
+
+Cara untuk menggunakan Navigation Guard adalah dengan cara menambahkan method  
+yang digunakan untuk melindungi navigasi pada `/src/router/index.js`.
+
+File: `/src/router/index.js`
+```javascript
+const router = new VueRouter({ ... });
+
+// Method ini adalah navigation guard yang akan dijalankan
+// sebelum semua route dijalankan / sebelum masuk ke route yang ada
+router.beforeEach((to, from, next) => {
+  // to = route yang akan dituju (Route)
+  // from = route yang sedang dituju (Route)
+
+  // Baik to / from bisa mengambil data Route yang ada
+  // mis: to.name / from.name 
+
+  // next = method untuk mengirimkan navigasi ke route yang dituju (Function)
+  // - next() = mengirimkan navigasi ke route yang dituju
+  // - next(false) = mengirimkan navigasi ke route yang sebelumnya
+  // - next(route) = mengirimkan navigasi ke route yang dituju
+  //    - route = object Route yang akan dituju
+  // - next(error) = mengirimkan navigasi ke route yang error
+
+  // Pastikan next hanya akan dipanggil SATU KALI saja dalam logic yang ada !
+});
+```
+
+Selain `beforeEach` ada juga method lainnya seperti:
+- `afterEach`
+- `beforeRouteEnter`
+- `beforeRouteUpdate`
+- `beforeRouteLeave`
+
+Dan lain lainnya, karena router navigation ini juga memiliki lifecyclenya  
+sendiri.
+
+Untuk detil lifecycle dari router navigation, kita bisa lihat pada  
+https://router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow
+
+Sampai pada tahap ini kita sudah mempelajari Vue Router dengan lebih mendalam !
+
+Selamat mencoba dan selamat mengembangkan aplikasi !
 
 ## References
+- https://router.vuejs.org/guide/essentials/named-routes.html
+- https://router.vuejs.org/guide/essentials/dynamic-matching.html
+- https://router.vuejs.org/guide/essentials/nested-routes.html
+- https://router.vuejs.org/guide/essentials/navigation.html
+- https://router.vuejs.org/guide/essentials/history-mode.html
+- https://router.vuejs.org/guide/advanced/navigation-guards.html
+- https://router.vuejs.org/guide/advanced/navigation-guards.html#the-full-navigation-resolution-flow
