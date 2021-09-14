@@ -1,14 +1,15 @@
-1. Intro
-1. What is Vue Router
-1. How to Vue Router
-    - Basic Vue Router
-    - Named Routes
-    - Nested Routes
-    - Dynamic Routes
-    - Programmatic Navigation
-1. History Mode
-1. Navigation Guard
-1. References
+## Table of Content
+1. [Intro](#intro)
+1. [What is Vue Router](#what-is-vue-router)
+1. [How to Vue Router](#how-to-vue-router)
+    - [Basic Vue Router](#basic-vue-router)
+    - [Named Routes](#named-routes)
+    - [Nested Routes](#nested-routes)
+    - [Dynamic Routes](#dynamic-routes)
+    - [Programmatic Navigation](#programmatic-navigation)
+1. [History Mode](#history-mode)
+1. [Navigation Guard](#navigation-guard)
+1. [References](#references)
 
 ### Intro
 Pada saat kita membuat aplikasi berbasis SPA, seringkali kita menemukan suatu  
