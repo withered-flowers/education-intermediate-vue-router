@@ -57,7 +57,7 @@ adalah sebuah official routing (navigasi) yang disediakan khusus untuk VueJS.
 - Kustomisasi perlakuan scroll
 
 ## How to Vue Router
-Mari kita langsung membuat saja yah aplikasinya, sebenarnya sudah sambil 
+Mari kita langsung membuat saja yah aplikasinya, sebenarnya sudah sambil  
 didemokan juga di atas bukan?
 
 Langkah Pertama - Inisialisasi Project
@@ -199,7 +199,7 @@ Bahkan apabila dilihat dari address bar, yang terlihat adalah
 
 Mengapa demikian?
 
-Nah hal ini terjadi karena kita belum mem-`binding` value dari object 
+Nah hal ini terjadi karena kita belum mem-`binding` value dari object  
 tersebut, sehingga terbacanya adalah apa adanya.
 
 Mari kita ubah kode lagi untuk memperbaiki hal ini
@@ -485,8 +485,8 @@ dalam router kita.
 Cara untuk menambahkan kedinamisan ini adalah dengan cara kita akan   
 menambahkan `Dynamic Routes` pada router kita.
 
-Misalnya kita ingin menambahkan rute `/todo/edit/:todoId` pada router, 
-maka kita akan membuka file `/src/router/index.js` dan menambahkan sebagai  
+Misalnya kita ingin menambahkan rute `/todo/edit/:todoId` pada router,  
+maka kita akan membuka file `/src/router/index.js` dan menambahkan sebagai   
 berikut:
 
 ```javascript
@@ -738,9 +738,11 @@ const router = new VueRouter({
 Di sini kita mendefinisikan mode `history` sehingga kita bisa menggunakan  
 history mode.
 
-Namun History Mode ini memiliki kelemahan: 
-** Harus menambahkan konfigurasi tambahan pada server dimana Vue.js nya  
-dihosting **
+Namun History Mode ini memiliki kelemahan:   
+```markdown
+Harus menambahkan konfigurasi tambahan pada server dimana Vue.js nya  
+dihosting
+```
 
 Sebagai contoh pada hosting firebase, kita akan diminta untuk menambahkan  
 konfigurasi `rewrites` pada `firebase.json`.
