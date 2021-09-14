@@ -3,6 +3,11 @@ import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
 // import About from "../views/About.vue";
 
+// Import seluruh component yang akan digunakan
+import Todo from "../views/Todo.vue";
+import TodoList from "../components/TodoList.vue";
+import TodoAdd from "../components/TodoAdd.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
@@ -20,6 +25,29 @@ const routes = [
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/About.vue"),
     // component: About,
+  },
+  {
+    // definisikan path untuk ke /todo
+    path: "/todo",
+    name: "Todo",
+    component: Todo,
+
+    // todo ini memiliki nested (child) component
+    // didefinisikan dalam props children
+    children: [
+      {
+        // definisikan path untuk ke /todo/list
+        path: "list",
+        name: "TodoList",
+        component: TodoList,
+      },
+      {
+        // definisikan path untuk ke /todo/add
+        path: "add",
+        name: "TodoAdd",
+        component: TodoAdd,
+      },
+    ],
   },
 ];
 

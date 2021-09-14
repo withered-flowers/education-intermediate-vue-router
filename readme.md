@@ -6,7 +6,7 @@
     - Nested Routes
     - Dynamic Routes
     - Programmatic Routes
-    - History Mode
+1. History Mode
 1. Navigation Guard
 1. References
 
@@ -151,13 +151,333 @@ Sesuai dengan namanya, `Named Routes`, adalah routing yang diberikan nama atau
 diberikan `alias` sehingga lebih mudah dalam pengingatan nama rute dan cara  
 memanggilnya.
 
+Misalnya kita akan buka kembali file `/src/router/index.js` dan melihat  
+route yang sudah ada
+
+```javascript
+const routes = [
+  {
+    path: "/",
+    name: "Home",
+    component: Home,
+  },
+  {
+    path: "/about",
+    name: "About",
+    component: () =>
+      import(/* webpackChunkName: "about" */ "../views/About.vue"),
+  },
+];
+```
+
+Dari file ini, terlihat bahwa ada 2 route yang sudah diberikan nama:
+- route `/` dengan nama `Home`
+- route `/about` dengan nama `About`
+
+Sekarang kita akan mencoba untuk mengubah kode pada `App.vue` sehingga bisa  
+menggunakan route yang sudah diberikan nama tersebut.
+
+pada file `App.vue`, kita hanya perlu mengubah route dalam bentuk `Object`,   
+dan passing prop dengan nama `name` yang berisi nama route yang sudah   
+diberikan.
+
+```html
+  <router-link to="{ name: 'Home' }">Home</router-link>
+  <router-link to="{ name: 'About' }">About</router-link>
+```
+
+Kemudian kita akan coba untuk menjalankan kode ini, kemudian lihatlah  
+hasilnya.
+
+Hasilnya adalah `kosong` bukan? 😁
+
+Hasilnya adalah tidak terjadi error, namun pada saat menekan link `Home`,  
+akan disajikan halaman kosong !
+
+Bahkan apabila dilihat dari address bar, yang terlihat adalah   
+`<alamat>/{ name: 'Home'}`. 
+
+Mengapa demikian?
+
+Nah hal ini terjadi karena kita belum mem-`binding` value dari object 
+tersebut, sehingga terbacanya adalah apa adanya.
+
+Mari kita ubah kode lagi untuk memperbaiki hal ini
+
+
+```html
+  <!-- Tambahkan v-bind directive pada to -->
+  <router-link v-bind:to="{ name: 'Home' }">Home</router-link>
+  <!-- Bila malas, cukup gunakan shorthand ":" -->
+  <router-link :to="{ name: 'About' }">About</router-link>
+```
+
+Maka kode nya pun akan berjalan seperti semula !
+
+Dan dengan ini pun, apabila kita mengubah route `About` menjadi  
+`/about/apa/ajalah/yang/penting/panjang` pun, tinggal ditulis dengan  
+`name = 'About'` saja untuk mempersingkatnya.
+
+Mudah bukan?
+
+Nah selanjutnya kita akan belajar lebih lanjut mengenai route berlapis-lapis  
+atau dikenal dengan nama `Nested Routes`.
+
 ### Nested Routes
+Pada pembuatan aplikasi kekinian, tentunya kita akan seringkali menemukan  
+sebuah alamat yang berlapis-lapis, misalnya:
+- `/todo/add` yang menyatakan halaman untuk menambahkan todo
+- `/todo/list` yang menyatakan halaman untuk melihat listing / isian dari todo
+
+Nah, artinya disini sebenarnya adalah kita memiliki sebuah route utama   
+bernama `/todo` yang memiliki 2 `anak` route, yaitu `/todo/add` dan  
+`/todo/list`.
+
+Bagaimanakah cara kita mendefinisikan route ini apabila sudah menggunakan  
+Vue Router?
+
+Mari kita mencoba untuk membuat kedua Component nya terlebih dahulu.
+
+Pertama-tama kita akan mematikan `npm run serve` yang sudah dilakukan  
+sebelumnya.
+
+Kemudian kita akan menginstall package bernama `axios` yang akan digunakan  
+untuk mengambil data dari internet, dengan perintah   
+`npm install axios --save`.
+
+Kemudian, Kita akan membuat dua buah Component pada folder `components`   
+dengan nama `TodoList.vue` dan `TodoAdd.vue`.
+
+Pada `TodoList.vue` kita akan membuatnya menjadi sebagai berikut
+
+File: `/src/components/TodoList.vue`
+```html
+<template>
+  <div class="todo-list">
+    <table>
+      <thead>
+        <tr>
+          <th>Todo ID</th>
+          <th>Todo Name</th>
+          <th>Todo Completed</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="todo in todos" :key="todo.id">
+          <td>{{ todo.id }}</td>
+          <td>{{ todo.name }}</td>
+          <td>{{ todo.isCompleted }}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script>
+// Pada pembelajaran ini kita menggunakan axios
+import axios from "axios";
+
+export default {
+  name: "TodoList",
+  data() {
+    return {
+      // data awal untuk diisi todos
+      todos: [],
+    };
+  },
+  methods: {
+    // method untuk mengambil data todos
+    async getTodos() {
+      try {
+        // mendapatkan data todos
+        const response = await axios({
+          method: "GET",
+          url: "https://613fdd1c5cb9280017a1107e.mockapi.io/v1/todos",
+        });
+
+        const dataTodos = response.data;
+
+        // mengisi data todos
+        this.todos = dataTodos;
+        // console.log(this.todos);
+      } catch (err) {
+        // hanya untuk pembelajaran
+        // tampilkan error di console log
+        console.log(err);
+      }
+    },
+  },
+  async created() {
+    // panggil method getTodos
+    await this.getTodos();
+  },
+};
+</script>
+
+<style>
+.todo-list {
+  width: 100%;
+}
+
+.todo-list > table {
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+</style>
+```
+
+File: `/src/components/TodoAdd.vue`
+```html
+<template>
+  <div class="todo-add">
+    <form action="#">
+      <div>
+        <input type="text" v-model="todo.name" placeholder="Nama Todo?" />
+      </div>
+      <div>
+        <button type="submit">Tambah</button>
+      </div>
+    </form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "TodoAdd",
+  data() {
+    return {
+      todo: {
+        name: "",
+      },
+    };
+  },
+};
+</script>
+
+<style>
+form > div {
+  display: inline-block;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
+}
+</style>
+```
+
+Selanjutnya kita akan membuat sebuah Views dengan nama `Todo.vue`.
+
+Buatlah sebuah file dengan nama `Todo.vue` pada `/views` dan isi dengan kode  
+sebagai berikut:
+
+File: `/src/views/Todo.vue`
+```html
+<template>
+  <div class="todo">
+    <nav>
+      <router-link to="/todo/list">List</router-link> |
+      <router-link to="/todo/add">Add</router-link>
+    </nav>
+    <div>
+      <router-view></router-view>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Todo",
+};
+</script>
+
+<style></style>
+```
+
+Kemudian kita akan menambahkan routing ini seluruhnya pada file   
+`/src/router/index.js`
+
+File: `/src/router/index.js`
+```javascript
+...
+// Import seluruh component yang akan digunakan
+import Todo from "../views/Todo.vue";
+import TodoList from "../components/TodoList.vue";
+import TodoAdd from "../components/TodoAdd.vue";
+
+...
+
+const routes = [
+  ...
+  {
+    // definisikan path untuk ke /todo
+    path: "/todo",
+    name: "Todo",
+    component: Todo,
+
+    // todo ini memiliki nested (child) component
+    // didefinisikan dalam props children
+    children: [
+      {
+        // definisikan path untuk ke /todo/list
+        path: "list",
+        name: "TodoList",
+        component: TodoList,
+      },
+      {
+        // definisikan path untuk ke /todo/add
+        path: "add",
+        name: "TodoAdd",
+        component: TodoAdd,
+      },
+    ],
+  },
+];
+```
+
+Selanjutnya kita akan memodifikasi file `App.vue` sehingga dapat menampilkan  
+navigasi `Todo`
+
+File: `/src/App.vue`
+```html
+  ...
+  <div id="nav">
+    <router-link v-bind:to="{ name: 'Home' }">Home</router-link> |
+    <router-link :to="{ name: 'About' }">About</router-link> |
+    <!-- Tambahkan route Todo -->
+    <router-link :to="{ name: 'Todo' }">Todo</router-link>
+  </div>
+    ...
+```
+
+Kemudian cobalah untuk menjalankan kode yang sudah dimodifikasi ini dan  
+lihatlah hasilnya !
+
+Lalu selanjutnya, apabila kita melihat dalam sebuah aplikasi backend yang   
+dibuat (mis Express), maka kita biasanya akan menemukan endpoint yang   
+memiliki sebuah parameter tersendiri, mis `/todos/:id`.
+
+Nah bagaimanakah cara kita membuatnya pada aplikasi Vue.js dengan Vue Router  
+ini?
+
+Untuk itu kita akan mempelajari lebih lanjut tentang Dynamic Routes.
 
 ### Dynamic Routes
 
+
+
 ### Programmatic Routes
 
-### History Mode
+## History Mode
 
 ## Navigation Guard
 
