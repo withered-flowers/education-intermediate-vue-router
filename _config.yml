@@ -6,6 +6,6 @@ relative_links:
 include:
   - readme.md
 theme: jekyll-theme-cayman
-title: Vue Router
+title: "Belajar Vue Router"
 baseurl: "education-intermediate-vue-router"
 url: ""
