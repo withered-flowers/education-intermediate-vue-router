@@ -7,6 +7,7 @@ import Home from "../views/Home.vue";
 import Todo from "../views/Todo.vue";
 import TodoList from "../components/TodoList.vue";
 import TodoAdd from "../components/TodoAdd.vue";
+import TodoEdit from "../components/TodoEdit.vue";
 
 Vue.use(VueRouter);
 
@@ -46,6 +47,13 @@ const routes = [
         path: "add",
         name: "TodoAdd",
         component: TodoAdd,
+      },
+      {
+        // definisikan path untuk ke /todo/edit/:todoId
+        path: "edit/:todoId",
+        name: "TodoEdit",
+        // masukkan Component TodoEdit yang sudah kita import
+        component: TodoEdit,
       },
     ],
   },

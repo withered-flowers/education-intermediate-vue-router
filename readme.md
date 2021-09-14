@@ -469,11 +469,146 @@ memiliki sebuah parameter tersendiri, mis `/todos/:id`.
 Nah bagaimanakah cara kita membuatnya pada aplikasi Vue.js dengan Vue Router  
 ini?
 
-Untuk itu kita akan mempelajari lebih lanjut tentang Dynamic Routes.
+Untuk itu kita akan mempelajari lebih lanjut tentang `Dynamic Routes`.
 
 ### Dynamic Routes
+Misalkan pada aplikasi yang kita buat ini, kita ingin menambahkan sebuah rute  
+baru pada todo, misalnya adalah menambahakan rute `/todo/edit`.
 
+Yang jadi permasalahan adalah edit ini akan bergantung dari id todo yang akan  
+dipilih, sehingga kita membutuhkan suatu *parameter* tambahan atau variabel  
+tambahan yang akan dijadikan penanda id todo yang akan di edit.
 
+Sehingga pada tahap ini kita akan membutuhkan suatu kedinamisan parameter 
+dalam router kita.
+
+Cara untuk menambahkan kedinamisan ini adalah dengan cara kita akan   
+menambahkan `Dynamic Routes` pada router kita.
+
+Misalnya kita ingin menambahkan rute `/todo/edit/:todoId` pada router, 
+maka kita akan membuka file `/src/router/index.js` dan menambahkan sebagai  
+berikut:
+
+```javascript
+  ...
+  {
+    // definisikan path untuk ke /todo
+    path: "/todo",
+    name: "Todo",
+    component: Todo,
+
+    // todo ini memiliki nested (child) component
+    // didefinisikan dalam props children
+    children: [
+      {
+        // definisikan path untuk ke /todo/list
+        path: "list",
+        name: "TodoList",
+        component: TodoList,
+      },
+      {
+        // definisikan path untuk ke /todo/add
+        path: "add",
+        name: "TodoAdd",
+        component: TodoAdd,
+      },
+      {
+        // definisikan path untuk ke /todo/edit/:todoId
+        path: "edit/:todoId",
+        name: "TodoEdit",
+        component: "", // Component dikosongkan dulu, untuk diisi nanti
+      },
+    ],
+  },
+  ...
+```
+
+Kemudian setelah ini kita akan mempersiapkan Component-nya untuk menampilkan  
+parameter :todoId.
+
+Buatlah sebuah Component baru dengan nama `TodoEdit.vue`  
+kemudian isilah dengan kode sebagai berikut:
+
+File: `/src/components/TodoEdit.vue`
+```html
+<template>
+  <div class="todo-edit">
+    Ini adalah isi dari parameter yang dikirim dari router:
+    <!-- 
+      perhatikan di sini kita menggunakan:
+        - $route yang merupakan alias untuk mengarah ke data yang ada 
+          pada router 
+        - $route.params <-- merupakan "parameter" yang ditarik dari
+          router
+        - $route.params.todoId <--- karena kita menggunakan dynamic route
+          dengan parameter tambahan berupa todoId dan kita ingin menggunakan  
+          parameter tersebut
+    -->
+    {{ $route.params.todoId }}
+  </div>
+</template>
+
+<script>
+export default {
+  name: "TodoEdit",
+};
+</script>
+
+<style>
+.todo-edit {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+```
+
+Kemudian kita sekarang akan melengkapi router kita dengan menambahkan  
+Component `TodoEdit` yang baru saja kita buat ini.
+
+File: `/src/router/index.js`
+```javascript
+...
+import TodoEdit from "../components/TodoEdit.vue";
+
+...
+  {
+    // definisikan path untuk ke /todo/edit/:todoId
+    path: "edit/:todoId",
+    name: "TodoEdit",
+    // masukkan Component TodoEdit yang sudah kita import
+    component: TodoEdit,
+  },
+```
+
+Sekarang kita akan menggunakan router yang didefinisikan dengan `router-link`  
+terlebih dahulu yah (sehingga parameter yang digunakan "statik")
+
+Nanti akan kita lihat lebih lanjut bagaimana untuk menggunakan / passing  
+parameter ini sangat dinamis dengan cara programmatic routing 😉.
+
+File: `/src/views/Todo.vue`
+```html
+  ...
+
+  <nav>
+    <router-link to="/todo/list">List</router-link> |
+    <router-link to="/todo/add">Add</router-link> |
+    <!-- 
+      Di sini kita akan menggunakan named Routing beserta
+      passing parameter todoId yang dibutuhkan
+    -->
+    <router-link :to="{ name: 'TodoEdit', params: { todoId: 1 } }"
+      >Edit</router-link
+    >
+  </nav>
+  ...
+```
+
+Kemudian setelah ini kita jalankan aplikasi yang sudah dibuat ini dan  
+lihatlah outputnya seperti apa !
+
+Cukup menakjubkan bukan? 😉
 
 ### Programmatic Routes
 
